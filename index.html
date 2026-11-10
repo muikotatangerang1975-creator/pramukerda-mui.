@@ -53,15 +53,6 @@ th{color:var(--muted);font-size:10px;text-transform:uppercase}
 .prog thead tr:first-child th{border-bottom:1px solid var(--line)}
 .empty{text-align:center;color:var(--muted);padding:18px}
 .muted{color:var(--muted);font-size:12px}
-
-/* PRESENTATION MODE & PROGRESS STYLES */
-.progress-bar-bg{background:#e0e8e4;border-radius:10px;height:12px;width:100%;overflow:hidden;margin-top:6px}
-.progress-bar-fill{background:var(--g);height:100%;width:0%;transition:width 0.4s ease}
-.presentation-card{background:#1e292b;color:white;padding:25px;border-radius:14px;margin-bottom:20px}
-.presentation-card h3{color:#5cdbb5;margin-top:0}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999;padding:15px}
-.modal-content{background:white;color:var(--ink);width:100%;max-width:850px;max-height:90vh;overflow-y:auto;border-radius:12px;padding:25px;position:relative}
-.close-modal{position:absolute;top:15px;right:15px;background:#e0e0e0;border:0;border-radius:50%;width:32px;height:32px;cursor:pointer;font-weight:bold}
 .btn-flex{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 .btn-flex button{flex:1;min-width:160px}
 
@@ -88,23 +79,22 @@ th{color:var(--muted);font-size:10px;text-transform:uppercase}
  <span class="pill" id="fbStatus">⏳ Menghubungkan…</span>
 </header>
 
-<!-- DASHBOARD PRESENTASI & PERSENTASE -->
-<section class="card presentation-card">
- <h3>📊 Dashboard Presentasi & Stat Kesiapan Program</h3>
- <p class="sub" style="color:#a3c2b8">Lihat ringkasan presentasi capaian pengisian rencana program dari setiap Komisi dan Lembaga.</p>
-
- <div class="grid" style="margin-top:15px">
-  <div>
-   <label style="color:#5cdbb5">Persentase Kelengkapan Program Kerja 2027</label>
-   <div class="progress-bar-bg">
-    <div id="progFill" class="progress-bar-fill"></div>
-   </div>
-   <div id="progText" style="font-size:12px;margin-top:5px;color:#cbe0d8">0% Terisi</div>
+<!-- PILIH UNIT (dipakai Program Umum & Rencana Program Kerja) -->
+<section class="card">
+ <div class="grid">
+  <div class="field" style="margin-bottom:0">
+   <label for="unitType">Jenis Unit</label>
+   <select id="unitType">
+    <option value="Lembaga">Lembaga</option>
+    <option value="Komisi">Komisi</option>
+   </select>
   </div>
-  <div style="display:flex;align-items:flex-end">
-   <button class="primary full" onclick="openPresentationModal()" style="background:#23866b;color:white">📺 Buka Mode Presentasi Rapat</button>
+  <div class="field" style="margin-bottom:0">
+   <label for="unitName">Nama Lembaga / Komisi</label>
+   <select id="unitName"></select>
   </div>
  </div>
+ <p class="hint" style="margin:10px 0 0">Pilihan unit berlaku untuk Program Umum dan Rencana Program Kerja 2027 di bawah.</p>
 </section>
 
 <!-- PROGRAM UMUM -->
@@ -115,20 +105,6 @@ th{color:var(--muted);font-size:10px;text-transform:uppercase}
   <div class="muted">Pilih Lembaga atau Komisi untuk melihat program umum dan tahun pelaksanaannya.</div>
  </div>
  <span id="permission" class="status editable">Bisa diedit</span>
-</div>
-
-<div class="grid">
-  <div class="field">
-    <label for="unitType">Jenis Unit</label>
-    <select id="unitType">
-      <option value="Lembaga">Lembaga</option>
-      <option value="Komisi">Komisi</option>
-    </select>
-  </div>
-  <div class="field">
-    <label for="unitName">Nama Lembaga / Komisi</label>
-    <select id="unitName"></select>
-  </div>
 </div>
 
 <div id="permissionNote" class="note"></div>
@@ -168,24 +144,11 @@ th{color:var(--muted);font-size:10px;text-transform:uppercase}
 <h2>Rencana Program Kerja 2027</h2>
 
 <p class="hint">
- Pilih Lembaga atau Komisi, lalu isi tabel rencana program kerja 2027 (program kerja, tujuan, peserta, waktu &amp; tempat, biaya, mitra kerja, dan penanggung jawab).
+ Isi tabel rencana program kerja 2027 (program kerja, tujuan, peserta, waktu &amp; tempat, biaya, mitra kerja, dan penanggung jawab).
  Kolom Program Umum untuk Komisi sudah terisi sesuai dokumen, baris baru bisa ditambahkan bila diperlukan.
 </p>
 
-<div class="grid">
- <div class="field">
-  <label for="planUnitType">Jenis Unit</label>
-  <select id="planUnitType">
-   <option>Lembaga</option>
-   <option>Komisi</option>
-  </select>
- </div>
-
- <div class="field">
-  <label for="planUnitName">Nama Lembaga / Komisi</label>
-  <select id="planUnitName"></select>
- </div>
-</div>
+<p class="muted" style="margin:0 0 6px">Unit: <strong id="planUnitLabel"></strong></p>
 
 <div style="overflow-x:auto;margin-bottom:12px">
  <table class="prog plan">
@@ -211,55 +174,21 @@ th{color:var(--muted);font-size:10px;text-transform:uppercase}
  <button class="secondary" id="addPlanRow">+ Tambah Baris</button>
 </div>
 
-<div class="field">
- <label for="planFile">Upload Dokumen Word (opsional)</label>
- <input type="file" id="planFile" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
- <p class="hint">Format yang diterima: .doc atau .docx</p>
-</div>
-
 <div class="btn-flex">
  <button class="primary" id="savePlan">Simpan Rencana Program</button>
  <button class="word-btn" onclick="exportPlanDocx()">📥 Unduh Rencana Program 2027 (.docx)</button>
 </div>
 
 <p class="hint" style="margin-top:12px">
- Isi tabel tersimpan otomatis ke Firebase dan tersinkron antar pengguna. Dokumen yang diunggah disimpan di Firebase Storage.
+ Isi tabel tersimpan otomatis ke Firebase dan tersinkron antar pengguna.
 </p>
 </section>
 
-<!-- DAFTAR DOKUMEN & PRESENTASI -->
-<section class="card">
-<h2>Dokumen & Presentasi Terunggah</h2>
-<div style="overflow-x:auto">
- <table>
-  <thead>
-   <tr>
-    <th>Unit</th>
-    <th>Nama File Upload</th>
-    <th>Aksi & Presentasi</th>
-   </tr>
-  </thead>
-  <tbody id="planHistory"></tbody>
- </table>
-</div>
-</section>
-
-</div>
-
-<!-- MODAL PRESENTASI -->
-<div id="presentationModal" class="modal-overlay">
- <div class="modal-content">
-  <button class="close-modal" onclick="closePresentationModal()">✕</button>
-  <h2 style="color:var(--g)" id="presTitle">Mode Presentasi PRAMUKERDA II</h2>
-  <hr style="border:0;border-top:1px solid #ddd;margin:15px 0">
-  <div id="presBody"></div>
- </div>
 </div>
 
 <!-- FIREBASE SDK + DOCX -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
 
 <script>
@@ -273,9 +202,13 @@ const firebaseConfig = {
   appId: "1:1020591731074:web:1364b1a6ed6b85281b9f9b"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+let db = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}catch(e){
+  console.error("Firebase tidak termuat:",e);
+}
 
 // DATA PENGURUS
 const unitData = {
@@ -611,8 +544,6 @@ const programs = {
  ]
 };
 
-let plans=[];
-
 const planData = {
  "Komisi Fatwa": [
   { "id": 1, "general": "Mengembangkan kegiatan ilmu syari’ah di kalangan ulama mengenai berbagai masalah umat Islam sesuai dengan tingkatan kebutuhan dalam memberikan bimbingan dan pedoman hukum bagi umat Islam.", "fixed": true, "work": "", "goal": "", "participants": "", "timePlace": "", "cost": "", "partner": "", "responsible": "" },
@@ -689,6 +620,7 @@ const timers={};
 function debounce(id,fn,ms){ clearTimeout(timers[id]); timers[id]=setTimeout(fn,ms); }
 
 function saveProgramsFS(name){
+ if(!db){ setFb('⚠️ Firebase tidak termuat',false); return Promise.reject({code:'firebase-offline'}); }
  setFb('⏳ Menyimpan…',true);
  return db.collection('programs').doc(keyOf(name)).set({
   unit:name,
@@ -699,6 +631,7 @@ function saveProgramsFS(name){
 }
 
 function savePlanRowsFS(name){
+ if(!db){ setFb('⚠️ Firebase tidak termuat',false); return Promise.reject({code:'firebase-offline'}); }
  setFb('⏳ Menyimpan…',true);
  return db.collection('plans').doc(keyOf(name)).set({
   unit:name,
@@ -709,6 +642,7 @@ function savePlanRowsFS(name){
 }
 
 function listenFirestore(){
+ if(!db){ setFb('⚠️ Firebase tidak termuat',false); return; }
  const onErr=e=>{console.error(e);setFb('⚠️ Firebase: '+(e.code||e.message),false);};
 
  // Program umum
@@ -733,18 +667,12 @@ function listenFirestore(){
    if(ch.type==='removed') return;
    const d=ch.doc.data();
    if(d.unit && Array.isArray(d.rows) && JSON.stringify(planData[d.unit])!==JSON.stringify(d.rows)){
-    if(typing && d.unit===$("planUnitName").value) return; // jangan ganggu yang lagi ngetik
+    if(typing && d.unit===$("unitName").value) return; // jangan ganggu yang lagi ngetik
     planData[d.unit]=d.rows; changed=true;
    }
   });
   if(changed) renderPlanTable();
   setFb('✅ Tersinkron Firebase',true);
- },onErr);
-
- // Dokumen terunggah
- db.collection('documents').orderBy('createdAt','desc').onSnapshot(snap=>{
-  plans=snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderPlans();
  },onErr);
 }
 
@@ -758,6 +686,7 @@ function fillUnits(){
   $("unitName").append(o);
  });
  renderPrograms();
+ renderPlanTable();
 }
 
 function fillRows(body,type,name,withActions){
@@ -884,7 +813,8 @@ function deleteProgram(id){
 function queuePlanSave(key){ debounce('plan_'+key,()=>savePlanRowsFS(key).catch(()=>{}),800); }
 
 function renderPlanTable(){
- const key=$("planUnitName").value;
+ const key=$("unitName").value;
+ $("planUnitLabel").textContent=key;
  if(!planData[key]) planData[key]=[];
  const rows=planData[key];
  const body=$("planTableBody");
@@ -892,7 +822,6 @@ function renderPlanTable(){
 
  if(!rows.length){
   body.innerHTML='<tr><td colspan="10" class="empty">Belum ada baris. Klik "+ Tambah Baris".</td></tr>';
-  updateProgressStats();
   return;
  }
 
@@ -911,7 +840,7 @@ function renderPlanTable(){
    const ta=document.createElement("textarea");
    ta.rows=3; ta.placeholder="Program umum";
    ta.value=r.general;
-   ta.addEventListener("input",()=>{r.general=ta.value; updateProgressStats(); queuePlanSave(key);});
+   ta.addEventListener("input",()=>{r.general=ta.value; queuePlanSave(key);});
    gen.append(ta);
   }
   tr.append(gen);
@@ -920,7 +849,7 @@ function renderPlanTable(){
    const td=document.createElement("td");
    const ta=document.createElement("textarea");
    ta.rows=3; ta.value=r[f]||"";
-   ta.addEventListener("input",()=>{r[f]=ta.value; updateProgressStats(); queuePlanSave(key);});
+   ta.addEventListener("input",()=>{r[f]=ta.value; queuePlanSave(key);});
    td.append(ta);
    tr.append(td);
   });
@@ -939,32 +868,10 @@ function renderPlanTable(){
   tr.append(act);
   body.append(tr);
  });
-
- updateProgressStats();
-}
-
-function updateProgressStats(){
- const key=$("planUnitName").value;
- const rows=planData[key]||[];
- if(!rows.length){
-  $("progFill").style.width="0%";
-  $("progText").textContent="0% Terisi untuk "+key;
-  return;
- }
- let totalFields=rows.length * PLAN_FIELDS.length;
- let filledFields=0;
- rows.forEach(r=>{
-  PLAN_FIELDS.forEach(f=>{
-   if(r[f] && r[f].trim()!=="") filledFields++;
-  });
- });
- let percent=Math.round((filledFields / totalFields) * 100);
- $("progFill").style.width=percent+"%";
- $("progText").textContent=percent+"% Kelengkapan Data ("+key+")";
 }
 
 function addPlanRow(){
- const key=$("planUnitName").value;
+ const key=$("unitName").value;
  if(!planData[key]) planData[key]=[];
  planData[key].push({
   id:Date.now(),general:"",fixed:false,
@@ -974,101 +881,23 @@ function addPlanRow(){
  queuePlanSave(key);
 }
 
-function fillPlanUnits(){
- const type=$("planUnitType").value;
- const sel=$("planUnitName");
- sel.innerHTML="";
- Object.keys(unitData[type]).forEach(name=>{
-  const option=document.createElement("option");
-  option.value=name; option.textContent=name;
-  sel.append(option);
- });
- renderPlanTable();
-}
-
 async function savePlan(){
  const btn=$("savePlan");
  btn.disabled=true;
  const oldText=btn.textContent;
  btn.textContent="Menyimpan…";
  try{
-  const unitName=$("planUnitName").value;
+  const unitName=$("unitName").value;
   clearTimeout(timers['plan_'+unitName]);
   await savePlanRowsFS(unitName);
-
-  const file=$("planFile").files[0];
-  if(file){
-   const path='dokumen/'+keyOf(unitName)+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]+/g,'_');
-   const ref=storage.ref(path);
-   await ref.put(file);
-   const url=await ref.getDownloadURL();
-   await db.collection('documents').add({
-    unitType:$("planUnitType").value,
-    unit:unitName,
-    fileName:file.name,
-    fileUrl:url,
-    storagePath:path,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-   });
-   $("planFile").value="";
-  }
   alert("Rencana Program Kerja 2027 berhasil disimpan ke Firebase.");
  }catch(e){
   console.error(e);
-  alert("Gagal menyimpan: "+(e.code||e.message)+"\nCek Rules Firestore/Storage di Firebase Console.");
+  alert("Gagal menyimpan: "+(e.code||e.message)+"\nCek Rules Firestore di Firebase Console.");
  }finally{
   btn.disabled=false;
   btn.textContent=oldText;
  }
-}
-
-function renderPlans(){
- const body=$("planHistory");
- body.innerHTML="";
-
- if(!plans.length){
-  body.innerHTML='<tr><td colspan="3" class="empty">Belum ada dokumen rencana program.</td></tr>';
-  return;
- }
-
- plans.forEach(p=>{
-  const tr=document.createElement("tr");
-
-  const unitCell=document.createElement("td");
-  unitCell.textContent=p.unitType+" — "+p.unit;
-  tr.append(unitCell);
-
-  const fileCell=document.createElement("td");
-  const a=document.createElement("a");
-  a.href=p.fileUrl;
-  a.target="_blank";
-  a.rel="noopener";
-  a.textContent=p.fileName;
-  fileCell.append(a);
-  tr.append(fileCell);
-
-  const actionCell=document.createElement("td");
-  const btnPres=document.createElement("button");
-  btnPres.className="primary";
-  btnPres.textContent="📺 Tampilkan Presentasi";
-  btnPres.onclick=()=>presentSingleDoc(p);
-
-  const del=document.createElement("button");
-  del.className="danger";
-  del.textContent="Hapus";
-  del.style.marginLeft="6px";
-  del.onclick=async()=>{
-   if(!confirm("Hapus dokumen rencana program ini?")) return;
-   try{
-    if(p.storagePath) await storage.ref(p.storagePath).delete().catch(()=>{});
-    await db.collection('documents').doc(p.id).delete();
-   }catch(e){ alert("Gagal hapus: "+(e.code||e.message)); }
-  };
-
-  actionCell.append(btnPres, del);
-  tr.append(actionCell);
-  body.append(tr);
- });
 }
 
 /* ================= EKSPOR WORD (.docx ASLI) ================= */
@@ -1091,7 +920,7 @@ function fallbackDoc(title,headers,rows,filename){
 
 function buildDocx({title,headers,rows,fracs,landscape,centerCols,filename}){
  if(typeof docx==='undefined'){
-  alert("Library .docx gagal dimuat (cek internet). Diunduh sebagai .doc.");
+  alert("Anda yakin ingin mengunduh .doc?");
   return fallbackDoc(title,headers,rows,filename);
  }
  const D=docx;
@@ -1161,7 +990,7 @@ function exportProgramUmumDocx(){
 }
 
 function exportPlanDocx(){
- const uName=$("planUnitName").value;
+ const uName=$("unitName").value;
  const list=planData[uName]||[];
  const rows=list.length
   ? list.map((r,i)=>[i+1,r.general||"-",r.work||"-",r.goal||"-",r.participants||"-",r.timePlace||"-",r.cost||"-",r.partner||"-",r.responsible||"-"])
@@ -1177,79 +1006,15 @@ function exportPlanDocx(){
  });
 }
 
-/* ================= MODE PRESENTASI ================= */
-function openPresentationModal(){
- const pUName=$("planUnitName").value;
- const rows=planData[pUName]||[];
-
- $("presentationModal").style.display="flex";
- $("presTitle").textContent="📊 Slide Presentasi Rapat: "+pUName;
-
- let html=`<div style="line-height:1.6">
-  <div style="background:#e4f5ed;padding:12px;border-radius:8px;margin-bottom:15px;color:#187653">
-   <strong>Status Capaian:</strong> ${esc($("progText").textContent)}
-  </div>
-  <h3>1. Rencana Program Kerja 2027 (Tabel Isian)</h3>`;
-
- if(!rows.length){
-  html+=`<p class="muted">Belum ada data program kerja 2027 yang diisi.</p>`;
- }else{
-  html+=`<table style="width:100%;border-collapse:collapse;margin-bottom:20px" border="1" cellpadding="6">
-   <tr style="background:#f4f7f5"><th>No</th><th>Program Kerja</th><th>Tujuan</th><th>Waktu & Tempat</th><th>PJ</th></tr>`;
-  rows.forEach((r,i)=>{
-   html+=`<tr>
-    <td align="center">${i+1}</td>
-    <td><strong>${esc(r.work)||'(Belum diisi)'}</strong><br><small style="color:#666">Umum: ${esc(r.general)||'-'}</small></td>
-    <td>${esc(r.goal)||'-'}</td>
-    <td>${esc(r.timePlace)||'-'}</td>
-    <td>${esc(r.responsible)||'-'}</td>
-   </tr>`;
-  });
-  html+=`</table>`;
- }
-
- html+=`<h3>2. Dokumen Terlampir</h3>`;
- if(!plans.length){
-  html+=`<p class="muted">Tidak ada dokumen Word tambahan yang diunggah.</p>`;
- }else{
-  html+=`<ul>`;
-  plans.forEach(p=>{
-   html+=`<li><strong>${esc(p.unit)}:</strong> <a href="${esc(p.fileUrl)}" target="_blank" rel="noopener">${esc(p.fileName)}</a></li>`;
-  });
-  html+=`</ul>`;
- }
- html+=`</div>`;
- $("presBody").innerHTML=html;
-}
-
-function presentSingleDoc(p){
- $("presentationModal").style.display="flex";
- $("presTitle").textContent="📄 Mode Presentasi Dokumen: "+p.fileName;
- $("presBody").innerHTML=`
-  <div style="text-align:center;padding:20px">
-   <p style="font-size:16px">Dokumen Word terlampir untuk <strong>${esc(p.unit)}</strong></p>
-   <div style="background:#f4f7f5;padding:30px;border-radius:10px;margin:20px 0">
-    📁 <strong>${esc(p.fileName)}</strong>
-   </div>
-   <a class="primary" style="display:inline-block;text-align:center;text-decoration:none;padding:10px 20px;border-radius:8px" href="${esc(p.fileUrl)}" target="_blank" rel="noopener">Buka / Download Dokumen Asli</a>
-  </div>`;
-}
-
-function closePresentationModal(){ $("presentationModal").style.display="none"; }
-
 /* ================= EVENT LISTENERS ================= */
-$("planUnitType").addEventListener("change",fillPlanUnits);
-$("planUnitName").addEventListener("change",renderPlanTable);
 $("savePlan").addEventListener("click",savePlan);
 $("addPlanRow").addEventListener("click",addPlanRow);
 $("unitType").addEventListener("change",fillUnits);
-$("unitName").addEventListener("change",renderPrograms);
+$("unitName").addEventListener("change",()=>{renderPrograms();renderPlanTable();});
 $("add").addEventListener("click",addProgram);
 
 /* ================= INISIALISASI ================= */
 fillUnits();
-fillPlanUnits();
-renderPlans();
 listenFirestore();
 </script>
 </body>
